@@ -35,7 +35,7 @@ type Config struct {
 	CaCertFile  []string      `json:"caCertFiles"`
 	DialTimeout time.Duration `json:"timeout"`
 	Consistency string        `json:"consistency"`
-	basicAuth   *BasicAuth    `json:"basicAuth,omitempty"`
+	BasicAuth   *BasicAuth    `json:"basicAuth,omitempty"`
 }
 
 type Client struct {
@@ -61,7 +61,7 @@ type Client struct {
 }
 
 func (cf *Config) AddBasicAuth(basicAuth *BasicAuth) {
-	cf.basicAuth = basicAuth
+	cf.BasicAuth = basicAuth
 }
 
 // NewClient create a basic client that is configured to be used
