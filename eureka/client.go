@@ -13,16 +13,21 @@ import (
 	"net/url"
 	"os"
 	"path"
-	"time"
 	"strings"
+	"time"
 )
 
 const (
 	defaultBufferSize = 10
-	UP = "UP"
-	DOWN = "DOWN"
-	STARTING = "STARTING"
+	UP                = "UP"
+	DOWN              = "DOWN"
+	STARTING          = "STARTING"
 )
+
+type BasicAuth struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
 
 type Config struct {
 	CertFile    string        `json:"certFile"`
@@ -30,6 +35,7 @@ type Config struct {
 	CaCertFile  []string      `json:"caCertFiles"`
 	DialTimeout time.Duration `json:"timeout"`
 	Consistency string        `json:"consistency"`
+	basicAuth   *BasicAuth    `json:"basicAuth,omitempty"`
 }
 
 type Client struct {
@@ -50,16 +56,24 @@ type Client struct {
 	// Argument numReqs is the number of http.Requests that have been made so far.
 	// Argument lastResp is the http.Responses from the last request.
 	// Argument err is the reason of the failure.
-	CheckRetry  func(cluster *Cluster, numReqs int,
-	lastResp http.Response, err error) error
+	CheckRetry func(cluster *Cluster, numReqs int,
+		lastResp http.Response, err error) error
+}
+
+func (cf *Config) AddBasicAuth(basicAuth *BasicAuth) {
+	cf.basicAuth = basicAuth
 }
 
 // NewClient create a basic client that is configured to be used
 // with the given machine list.
-func NewClient(machines []string) *Client {
+func NewClient(machines []string, basicAuth *BasicAuth) *Client {
 	config := Config{
 		// default timeout is one second
 		DialTimeout: time.Second,
+	}
+
+	if basicAuth != nil {
+		config.AddBasicAuth(basicAuth)
 	}
 
 	client := &Client{
@@ -72,7 +86,7 @@ func NewClient(machines []string) *Client {
 }
 
 // NewTLSClient create a basic client with TLS configuration
-func NewTLSClient(machines []string, cert string, key string, caCerts []string) (*Client, error) {
+func NewTLSClient(machines []string, cert string, key string, caCerts []string, basicAuth *BasicAuth) (*Client, error) {
 	// overwrite the default machine to use https
 	if len(machines) == 0 {
 		machines = []string{"https://127.0.0.1:4001"}
@@ -84,6 +98,10 @@ func NewTLSClient(machines []string, cert string, key string, caCerts []string) 
 		CertFile:    cert,
 		KeyFile:     key,
 		CaCertFile:  make([]string, 0),
+	}
+
+	if basicAuth != nil {
+		config.AddBasicAuth(basicAuth)
 	}
 
 	client := &Client{
