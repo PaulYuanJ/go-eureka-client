@@ -293,6 +293,11 @@ func (c *Client) SendRequest(rr *RawRequest) (*RawResponse, error) {
 
 			req.Header.Set("Content-Type",
 				"application/json")
+
+			if c.Config.BasicAuth != nil {
+				req.SetBasicAuth(c.Config.BasicAuth.Username, c.Config.BasicAuth.Password)
+			}
+
 			return req, nil
 		}()
 

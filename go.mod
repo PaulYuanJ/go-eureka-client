@@ -1,4 +1,4 @@
-module github.com/ArthurHlt/go-eureka-client
+module github.com/PaulYuanJ/go-eureka-client
 
 go 1.12
 

@@ -1,20 +1,26 @@
 Go Eureka Client
 ================
 
-Based on code from https://github.com/bryanstephens/go-eureka-client .
+Based on code from https://github.com/ArthurHlt/go-eureka-client .
 
 ## Getting started
 
 ```go
 import (
-	"github.com/ArthurHlt/go-eureka-client/eureka"
+	"github.com/PaulYuanJ/go-eureka-client/eureka"
 )
 func main() {
 
-	client := eureka.NewClient([]string{
+	client := eureka.NewClient(
+		[]string{
 		"http://127.0.0.1:8761/eureka", //From a spring boot based eureka server
 		// add others servers here
-	})
+		},
+		&eureka.BasicAuth{
+			Username: "admin", // if your eureka server requires basic auth
+			Password: "password", // if your eureka server requires basic auth
+        },
+	)
 	instance := eureka.NewInstanceInfo("test.com", "test", "69.172.200.235", 80, 30, false) //Create a new instance to register
 	instance.Metadata = &eureka.MetaData{
 		Map: make(map[string]string),
@@ -46,7 +52,11 @@ You can create from a json file with this form (here we called it `config.json`)
     "keyFile": "",
     "caCertFiles": null,
     "timeout": 1000000000,
-    "consistency": ""
+    "consistency": "",
+    "basicAuth": {
+      "username": "admin",
+      "password": "password"
+    }
   },
   "cluster": {
     "leader": "http://127.0.0.1:8761/eureka",
